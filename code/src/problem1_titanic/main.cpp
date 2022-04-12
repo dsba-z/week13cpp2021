@@ -191,13 +191,55 @@ VecPassengers loadData(const std::string& INPUT_FILE_NAME)
     return passengers;
 }
 
+void modifyPassenger(Passenger &a)
+{
+    a.name = "ABC";
+}
+
+Passenger transformPassenger(const Passenger &a)
+{
+    Passenger b = a;
+    b.name = "ABC";
+    return b;
+}
+
+bool comparator(const Passenger &a, const Passenger &b)
+{
+    return a.pclass == b.pclass;
+}
+
+bool sortComparator(const Passenger &a, const Passenger &b)
+{
+    return a.pclass < b.pclass;
+}
+
 int main ()
 {
     const std::string INPUT_FILE_NAME = "../../data/titanic.csv";
     VecPassengers passengers = loadData(INPUT_FILE_NAME);
     
-    for (size_t i = 0; i < 200; ++i)
+    VecPassengers passengers2 = passengers;
+    
+    std::for_each(passengers2.begin(), passengers2.end(), modifyPassenger);
+    
+    std::transform(passengers2.begin(), passengers2.end(), passengers.begin(),
+                   transformPassenger);
+    
+    std::stable_sort(passengers.begin(), passengers.end(), sortComparator);
+    VecPassengers::iterator lastUniquePassenger = std::unique(
+                passengers.begin(),
+                passengers.end(),
+                comparator);
+    
+    
+    for (VecPassengers::iterator it = passengers.begin();
+         it != lastUniquePassenger; ++it)
     {
-        std::cout << passengers[i] << "\n";
+        std::cout << *it << "\n";
     }
+    
+//    for (size_t i = 0; i < 200; ++i)
+//    {
+//        std::cout << passengers[i] << "\n";
+//    }
 }
