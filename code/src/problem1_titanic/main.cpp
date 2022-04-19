@@ -240,6 +240,12 @@ void filterRemove(VecPassengers& vecp)
     vecp.erase(itEnd, vecp.end());
 }
 
+void filterUniversal(VecPassengers& vecp, bool (*comparator)(const Passenger&))
+{
+    VecPassengers::iterator itEnd = std::remove_if(vecp.begin(), vecp.end(), comparator);
+    vecp.erase(itEnd, vecp.end());
+}
+
 VecPassengers filterCopy(VecPassengers& vecp)
 {
     VecPassengers result;
@@ -252,6 +258,10 @@ struct PassengerComparator
     bool operator() (const Passenger& a, const Passenger& b) { return a.id < b.id; }
 };
 
+bool operator< (const Passenger& a, const Passenger& b) {
+    return a.id < b.id;
+}
+
 int main ()
 {
     const std::string INPUT_FILE_NAME = "../../data/titanic.csv";
@@ -260,8 +270,13 @@ int main ()
     PassengerComparator pc;
     std::set<Passenger, PassengerComparator> setPassenger(pc);
     setPassenger.insert(passengers[0]);
+    std::set<Passenger> set2;
+    set2.insert(passengers[0]);
     VecPassengers passengers2 = passengers;
-    filterRemove(passengers);
+    
+    
+    
+    filterUniversal(passengers, firstPredicate);
     VecPassengers filteredPassengers = filterCopy(passengers2);
     for (const Passenger& p: passengers)
     {
