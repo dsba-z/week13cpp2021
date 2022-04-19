@@ -4,6 +4,8 @@
 #include <vector>
 #include <algorithm>
 #include <iomanip>
+#include <iterator>
+#include <set>
 
 enum class PClass{
     Upper = 1,
@@ -227,27 +229,40 @@ bool comparator(const Passenger &a, const Passenger &b)
 // ^       ^ it (return value)
 // begin()
 
+bool firstPredicate(const Passenger& p)
+{
+    return !(p.fare < 10 && p.embarked == "S");
+}
+
+void filterRemove(VecPassengers& vecp)
+{
+    VecPassengers::iterator itEnd = std::remove_if(vecp.begin(), vecp.end(), firstPredicate);
+    vecp.erase(itEnd, vecp.end());
+}
+
+VecPassengers filterCopy(VecPassengers& vecp)
+{
+    VecPassengers result;
+    std::copy_if(vecp.begin(), vecp.end(), std::inserter(result, result.begin()), firstPredicate);
+    return result;
+}
+
+struct PassengerComparator
+{
+    bool operator() (const Passenger& a, const Passenger& b) { return a.id < b.id; }
+};
+
 int main ()
 {
     const std::string INPUT_FILE_NAME = "../../data/titanic.csv";
     VecPassengers passengers = loadData(INPUT_FILE_NAME);
+
+    PassengerComparator pc;
+    std::set<Passenger, PassengerComparator> setPassenger(pc);
+    setPassenger.insert(passengers[0]);
     VecPassengers passengers2 = passengers;
-    
-    std::for_each(passengers.begin(), passengers.end(), modifyPassenger);
-    
-    std::transform(passengers.begin(), passengers.end(), passengers2.begin(), transformPassenger);
-    
-    VecPassengers::iterator itemAfterUnique = std::unique(passengers.begin(),
-                                                          passengers.end(),
-                                                          comparator);
-    
-    for (VecPassengers::iterator it = passengers.begin(); it != itemAfterUnique; ++it)
-    {
-        std::cout << *it << '\n';
-    }
-    
-    passengers.erase(itemAfterUnique, passengers.end());
-    
+    filterRemove(passengers);
+    VecPassengers filteredPassengers = filterCopy(passengers2);
     for (const Passenger& p: passengers)
     {
         std::cout << p << '\n';
