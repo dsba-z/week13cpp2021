@@ -75,9 +75,9 @@ std::ostream& operator<<(std::ostream& out, Passenger p)
     out << std::setw(2) << p.age << ",";
     out << std::setw(1) << p.sibsp << ",";
     out << std::setw(1) << p.parch << ",";
-    out << std::setw(15) << p.ticket << ",";
+    out << std::setw(15) << p.ticket.substr(0, 15) << ",";
     out << std::setw(10) << p.fare << ",";
-    out << std::setw(6) << p.cabin << ",";
+    out << std::setw(6) << p.cabin.substr(0, 6) << ",";
     out << std::setw(1) << p.embarked;
     return out;
 }
