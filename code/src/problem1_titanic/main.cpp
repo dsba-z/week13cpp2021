@@ -3,7 +3,9 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <set>
 #include <iomanip>
+#include <iterator>
 
 enum class PClass{
     Upper = 1,
@@ -226,17 +228,31 @@ void filterVectorFirst(VecPassengers& vecp)
 }
 // Create a vector that has only passengers with surnames starting with a letter from A to L.
 
+
+VecPassengers filterVectorSecondInsert(const VecPassengers& vecp)
+{
+    VecPassengers result;
+    std::copy_if(vecp.begin(), vecp.end(), std::inserter(result, result.begin()),
+                    predicateFirst);
+    return result;
+}
+
 VecPassengers filterVectorSecond(const VecPassengers& vecp)
 {
     VecPassengers result = vecp;
-    // std::copy_if(...)
-    
-    // similar to
-    //     std::transform(passengers2.begin(), passengers2.end(), passengers.begin(),
-//                        transformPassenger);
+    VecPassengers::iterator itEnd = std::copy_if(vecp.begin(), vecp.end(), result.begin(),
+                    predicateFirst);
     result.erase(itEnd, result.end());
     return result;
 }
+
+struct PassengerComparator
+{
+    bool operator() (const Passenger &a, const Passenger &b)
+    {
+        return a.id < b.id;
+    }
+};
 
 int main ()
 {
@@ -244,15 +260,27 @@ int main ()
     VecPassengers passengers = loadData(INPUT_FILE_NAME);
     
     VecPassengers passengers2 = passengers;
-    std::transform(passengers2.begin(), passengers2.end(), passengers.begin(),
-                   transformPassenger);
+    PassengerComparator pc;
+    std::set<Passenger, PassengerComparator> setPassengers(pc);
     
-
-    filterVectorFirst(passengers);
-    VecPassengers passengersFiltered = filterVectorSecond(passengers);
     
-    for (size_t i = 0; i < passengers.size(); ++i)
+    for (const Passenger& p: passengers)
     {
-        std::cout << passengers[i] << "\n";
+        setPassengers.insert(p);
     }
+    
+    
+    for (const Passenger& p: setPassengers)
+    {
+        
+        std::cout << p << "\n";
+    }
+    
+//    filterVectorFirst(passengers);
+//    VecPassengers passengersFiltered = filterVectorSecond(passengers2);
+    
+//    for (size_t i = 0; i < passengersFiltered.size(); ++i)
+//    {
+//        std::cout << passengersFiltered[i] << "\n";
+//    }
 }
