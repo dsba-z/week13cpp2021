@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <iomanip>
+#include <set>
 
 enum class PClass{
     Upper = 1,
@@ -213,32 +214,42 @@ bool compareByPclass(const Passenger &a, const Passenger &b)
     return a.pclass < b.pclass;
 }
 
+bool firstPredicate(const Passenger &a)
+{
+    return !(a.fare < 10 && a.embarked == "S");
+}
+
+void filterFirst(VecPassengers& vecp)
+{
+    VecPassengers::iterator itEnd = std::remove_if(vecp.begin(), vecp.end(), firstPredicate);
+    vecp.erase(itEnd, vecp.end());
+}
+
+VecPassengers filterSecond(const VecPassengers& vecp)
+{
+    VecPassengers result;
+    std::copy_if(vecp.begin(), vecp.end(), std::inserter(result, result.begin()), firstPredicate);
+    return result;
+}
+
+struct PassengerComparator
+{
+    bool operator() (const Passenger& a, const Passenger& b)
+    {
+        return a.id < b.id;
+    }
+};
+
 int main ()
 {
     const std::string INPUT_FILE_NAME = "../../data/titanic.csv";
     VecPassengers passengers = loadData(INPUT_FILE_NAME);
-    VecPassengers passengers2 = passengers;
-    
-    std::for_each(passengers.begin(), passengers.end(), modifyPassenger);
-    
-    std::transform(passengers.begin(), passengers.end(), passengers2.begin(),
-                   transformPassenger);
-    
-    
-    
-    std::stable_sort(passengers.begin(), passengers.end(), compareByPclass);
-    VecPassengers::iterator lastUniqueItem = std::unique(passengers.begin(),
-                                                         passengers.end(),
-                                                         comparator);
-    
-    passengers.erase(lastUniqueItem, passengers.end());
-    
-    for (VecPassengers::iterator it = passengers.begin(); it != lastUniqueItem; ++it)
-    {
-        std::cout << *it << "\n";
-    }    
-    for (Passenger p: passengers)
-    {
+    filterFirst(passengers);
+    PassengerComparator pc;
+    std::set<Passenger, PassengerComparator> setPassengers(pc);
+    for (const Passenger& p: passengers) {
         std::cout << p << "\n";
+        
+        setPassengers.insert(p);
     }
 }
