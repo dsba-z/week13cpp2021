@@ -213,33 +213,46 @@ bool sortComparator(const Passenger &a, const Passenger &b)
     return a.pclass < b.pclass;
 }
 
+bool predicateFirst(const Passenger &a)
+{
+    return !(a.fare < 10 && a.embarked == "S");
+}
+
+void filterVectorFirst(VecPassengers& vecp)
+{
+//    Create a vector that has only passengers with Fare less than 10 who embarked at port S.
+     VecPassengers::iterator itEnd = std::remove_if(vecp.begin(), vecp.end(), predicateFirst);
+     vecp.erase(itEnd, vecp.end());
+}
+// Create a vector that has only passengers with surnames starting with a letter from A to L.
+
+VecPassengers filterVectorSecond(const VecPassengers& vecp)
+{
+    VecPassengers result = vecp;
+    // std::copy_if(...)
+    
+    // similar to
+    //     std::transform(passengers2.begin(), passengers2.end(), passengers.begin(),
+//                        transformPassenger);
+    result.erase(itEnd, result.end());
+    return result;
+}
+
 int main ()
 {
     const std::string INPUT_FILE_NAME = "../../data/titanic.csv";
     VecPassengers passengers = loadData(INPUT_FILE_NAME);
     
     VecPassengers passengers2 = passengers;
-    
-    std::for_each(passengers2.begin(), passengers2.end(), modifyPassenger);
-    
     std::transform(passengers2.begin(), passengers2.end(), passengers.begin(),
                    transformPassenger);
     
-    std::stable_sort(passengers.begin(), passengers.end(), sortComparator);
-    VecPassengers::iterator lastUniquePassenger = std::unique(
-                passengers.begin(),
-                passengers.end(),
-                comparator);
+
+    filterVectorFirst(passengers);
+    VecPassengers passengersFiltered = filterVectorSecond(passengers);
     
-    
-    for (VecPassengers::iterator it = passengers.begin();
-         it != lastUniquePassenger; ++it)
+    for (size_t i = 0; i < passengers.size(); ++i)
     {
-        std::cout << *it << "\n";
+        std::cout << passengers[i] << "\n";
     }
-    
-//    for (size_t i = 0; i < 200; ++i)
-//    {
-//        std::cout << passengers[i] << "\n";
-//    }
 }
