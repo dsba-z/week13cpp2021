@@ -218,6 +218,10 @@ bool firstPredicate(const Passenger &a)
 {
     return !(a.fare < 10 && a.embarked == "S");
 }
+void filterCustom(VecPassengers& vecp, bool (*pred)(const Passenger&))
+{
+    pred(vecp[0]);
+}
 
 void filterFirst(VecPassengers& vecp)
 {
@@ -225,9 +229,10 @@ void filterFirst(VecPassengers& vecp)
     vecp.erase(itEnd, vecp.end());
 }
 
-VecPassengers filterSecond(const VecPassengers& vecp)
+template <typename MyType>
+MyType filterSecond(const MyType& vecp)
 {
-    VecPassengers result;
+    MyType result;
     std::copy_if(vecp.begin(), vecp.end(), std::inserter(result, result.begin()), firstPredicate);
     return result;
 }
@@ -245,6 +250,7 @@ int main ()
     const std::string INPUT_FILE_NAME = "../../data/titanic.csv";
     VecPassengers passengers = loadData(INPUT_FILE_NAME);
     filterFirst(passengers);
+    
     PassengerComparator pc;
     std::set<Passenger, PassengerComparator> setPassengers(pc);
     for (const Passenger& p: passengers) {
@@ -252,4 +258,15 @@ int main ()
         
         setPassengers.insert(p);
     }
+    
+    Passenger p = passengers[0];
+    
+    Passenger* p1 = &p;
+    
+    Passenger pNotPointer = *p1;
+    
+    Passenger* p2 = new Passenger();
+    
+    
+    
 }
