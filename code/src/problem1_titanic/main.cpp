@@ -246,9 +246,10 @@ void filterUniversal(VecPassengers& vecp, bool (*comparator)(const Passenger&))
     vecp.erase(itEnd, vecp.end());
 }
 
-VecPassengers filterCopy(VecPassengers& vecp)
+template <typename MyType>
+MyType filterCopy(MyType& vecp)
 {
-    VecPassengers result;
+    MyType result;
     std::copy_if(vecp.begin(), vecp.end(), std::inserter(result, result.begin()), firstPredicate);
     return result;
 }
@@ -256,11 +257,34 @@ VecPassengers filterCopy(VecPassengers& vecp)
 struct PassengerComparator
 {
     bool operator() (const Passenger& a, const Passenger& b) { return a.id < b.id; }
+    
+    ~PassengerComparator()
+    {
+        
+    }
 };
 
 bool operator< (const Passenger& a, const Passenger& b) {
     return a.id < b.id;
 }
+
+template<typename T> 
+class MyVector
+{ 
+    T* data;
+    size_t size;
+    void push_back(T)
+    {
+        T* newData = new T[size+1];
+        
+        // copy
+        delete[] data;
+        
+        data = newData;
+
+    }
+    void clear();
+}; 
 
 int main ()
 {
@@ -274,7 +298,9 @@ int main ()
     set2.insert(passengers[0]);
     VecPassengers passengers2 = passengers;
     
-    
+    {
+        Passenger qwe;
+    }
     
     filterUniversal(passengers, firstPredicate);
     VecPassengers filteredPassengers = filterCopy(passengers2);
